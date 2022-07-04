@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 function ContactUs() {
   const [name, setName] = useState('');
@@ -6,10 +6,15 @@ function ContactUs() {
   const [phone, setPhone] = useState('');
   const [phoneType, setPhoneType] = useState('');
   const [comments, setComments] = useState('');
+  const [validationErrors, setValidationErrors] = useState([]);
+  const [hasSubmitted, setHasSubmitted] = useState(false);
   
   const onSubmit = e => {
     // Prevent the default form behavior so the page doesn't reload.
     e.preventDefault();
+
+    setHasSubmitted(true);
+    if (validationErrors.length) return alert(`Cannot Submit`);
 
     // Create a new object for the contact us information.
     const contactUsInformation = {
@@ -31,11 +36,33 @@ function ContactUs() {
     setPhone('');
     setPhoneType('');
     setComments('');
+    setValidationErrors([]);
+    setHasSubmitted(false);
+   
   }
+
+  useEffect(() => {
+    const errors = [];
+    if (!name.length) errors.push('Please enter your Name');
+    if (!email.includes('@')) errors.push('Please provide a valid Email');
+    setValidationErrors(errors);
+  }, [name, email]);
+
+ 
 
   return (
     <div>
       <h2>Contact Us</h2>
+      {hasSubmitted && validationErrors.length > 0 && (
+        <div>
+          The following errors were found:
+          <ul>
+            {validationErrors.map(error => (
+              <li key={error}>{error}</li>
+            ))}
+          </ul>
+        </div>
+      )}
       <form onSubmit={onSubmit}>
         <div>
           <label htmlFor='name'>Name:</label>
